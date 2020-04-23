@@ -11,6 +11,8 @@ project(GKlib
 include(GKlibSystem.cmake)
 # Include required CMake modules
 include(CheckCCompilerFlag)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
 
 #-------------------------------------------------------------------------------
 # COMMAND-LINE OPTIONS
@@ -87,6 +89,39 @@ if(GKREGEX)
 endif()
 if(PCRE)
   target_compile_definitions(${PROJECT_NAME} PUBLIC __WITHPCRE__)
+endif()
+
+#-------------------------------------------------------------------------------
+# AVAILABILITY checks
+#-------------------------------------------------------------------------------
+check_include_file(execinfo.h HAVE_EXECINFO_H)
+if(HAVE_EXECINFO_H)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_EXEC_INFO_H)
+endif()
+
+check_function_exists(getline HAVE_GETLINE)
+if(HAVE_GETLINE)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_GETLINE)
+endif()
+
+# Custom check for TLS.
+if(MSVC)
+   set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__thread=__declspec(thread)")
+
+  # This if checks if that value is cached or not.
+  if("${HAVE_THREADLOCALSTORAGE}" MATCHES "^${HAVE_THREADLOCALSTORAGE}$")
+    try_compile(HAVE_THREADLOCALSTORAGE
+      ${CMAKE_BINARY_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/conf/check_thread_storage.c)
+    if(HAVE_THREADLOCALSTORAGE)
+      message(STATUS "checking for thread-local storage - found")
+    else()
+      message(STATUS "checking for thread-local storage - not found")
+    endif()
+  endif()
+  if(NOT HAVE_THREADLOCALSTORAGE)
+    set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__thread=")
+  endif()
 endif()
 
 #-------------------------------------------------------------------------------
