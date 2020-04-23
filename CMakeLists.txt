@@ -11,7 +11,7 @@ project(GKlib
 include(GKlibSystem.cmake)
 
 # Include required CMake modules
-include(CheckCCompilerFlag)
+include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CMakePackageConfigHelpers)
@@ -111,23 +111,19 @@ if(HAVE_GETLINE)
   target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_GETLINE)
 endif()
 
-if(MSVC)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC __thread=declspec(thread))
-
-  # This if checks if that value is cached or not.
-  if("${HAVE_THREADLOCALSTORAGE}" MATCHES "^${HAVE_THREADLOCALSTORAGE}$")
-    try_compile(HAVE_THREADLOCALSTORAGE
-      ${CMAKE_BINARY_DIR}
-      ${CMAKE_CURRENT_SOURCE_DIR}/conf/check_thread_storage.c)
-    if(HAVE_THREADLOCALSTORAGE)
-      message(STATUS "checking for thread-local storage - found")
-    else()
-      message(STATUS "checking for thread-local storage - not found")
+if(NOT DEFINED HAVE_TLS)
+  foreach(tls_name "__thread" "__declspec(thread)")
+    unset(HAVE_TLS CACHE)
+    check_c_source_compiles("${tls_name} int x; int main(void) { return 0; }"
+      HAVE_TLS)
+    if (HAVE_TLS)
+      set(TLS_NAME ${tls_name} CACHE STRING "Thread local keyword")
+      break()
     endif()
-  endif()
-  if(NOT HAVE_THREADLOCALSTORAGE)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC __thread=)
-  endif()
+  endforeach()
+endif()
+if(HAVE_TLS)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "__thread=${TLS_NAME}")
 endif()
 
 #-------------------------------------------------------------------------------
