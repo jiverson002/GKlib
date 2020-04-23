@@ -47,7 +47,10 @@ RNGT FPRFX ## rand() \
 /**************************************************************************/\
 RNGT FPRFX ## randInRange(RNGT max) \
 {\
-  return (RNGT)((FPRFX ## rand())%max); \
+  if (max <= INT32_MAX) \
+    return ((RNGT)gk_randint32())%max; \
+  else \
+    return ((RNGT)gk_randint64())%max; \
 }\
 \
 \

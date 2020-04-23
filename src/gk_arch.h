@@ -39,9 +39,11 @@
 #ifndef SUNOS
   #include <stdint.h>
 #endif
+#if !defined(WIN32) && !defined(__MINGW32__)
+  #include <sys/resource.h>
+#endif
   #include <inttypes.h>
   #include <sys/types.h>
-  #include <sys/resource.h>
   #include <sys/time.h>
 #endif
 

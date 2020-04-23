@@ -20,8 +20,8 @@
 #define INC_DEC(a, b, val) do {(a) += (val); (b) -= (val);} while(0)
 #define sign(a, b) ((a >= 0 ? b : -b))
 
-#define ONEOVERRANDMAX (1.0/(RAND_MAX+1.0))
-#define RandomInRange(u) ((int) (ONEOVERRANDMAX*(u)*rand()))
+#define ONEOVERRANDMAX (1.0/(INT32_MAX+1.0))
+#define RandomInRange(u) ((int) (ONEOVERRANDMAX*(u)*gk_randint32()))
 #define RandomInRange_r(s, u) ((int) (ONEOVERRANDMAX*(u)*rand_r(s)))
 
 #define gk_abs(x) ((x) >= 0 ? (x) : -(x))
