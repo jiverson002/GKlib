@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 
 # ...
 project(GKlib
@@ -7,7 +7,22 @@ project(GKlib
   HOMEPAGE_URL "http://glaros.dtc.umn.edu/gkhome/index.php"
   LANGUAGES    C)
 
+# ...
 include(GKlibSystem.cmake)
+# Include required CMake modules
+include(CheckCCompilerFlag)
+
+#-------------------------------------------------------------------------------
+# COMMAND-LINE OPTIONS
+#-------------------------------------------------------------------------------
+option(ASSERT  "turn asserts on"        OFF)
+option(ASSERT2 "additional assertions"  OFF)
+option(DEBUG   "add debugging support"  OFF)
+option(GPROF   "add gprof support"      OFF)
+option(GKRAND  "enable GKRAND support"  OFF)
+option(GKREGEX "enable GKREGEX support" OFF)
+option(OPENMP  "enable OpenMP support"  OFF)
+option(PCRE    "enable PCRE support"    OFF)
 
 #-------------------------------------------------------------------------------
 # LIBRARY configuration
@@ -27,10 +42,52 @@ target_include_directories(${PROJECT_NAME}
 
 if(NOT MSVC)
   target_link_libraries(${PROJECT_NAME}
-    PRIVATE m)
+    PUBLIC m)
 endif()
 
 add_library(GKlib::gklib ALIAS ${PROJECT_NAME})
+
+#-------------------------------------------------------------------------------
+# OPENMP configuration
+#-------------------------------------------------------------------------------
+find_package(OpenMP)
+if(OpenMP_C_FOUND)
+  target_compile_definitions(${PROJECT_NAME}
+    PUBLIC __OPENMP__)
+
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC OpenMP::OpenMP_C)
+endif()
+
+#-------------------------------------------------------------------------------
+# OPTIONS configuration
+#-------------------------------------------------------------------------------
+if(NOT ASSERT)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG)
+endif()
+if(NOT ASSERT2)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG2)
+endif()
+if(DEBUG)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG)
+endif()
+if(GPROF)
+  check_c_compiler_flag("-pg" HAS_GPROF_SUPPORT)
+  if (HAS_GPROF_SUPPORT)
+    target_compile_options(${PROJECT_NAME} PUBLIC "-pg")
+  else()
+    message(STATUS "GPROF support is not available.")
+  endif()
+endif()
+if(GKRAND)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GKRAND)
+endif()
+if(GKREGEX)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GKREGEX)
+endif()
+if(PCRE)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC __WITHPCRE__)
+endif()
 
 #-------------------------------------------------------------------------------
 # APPS configuration
