@@ -13,6 +13,19 @@
 /*************************************************************************
 * Architecture-specific differences in header files
 **************************************************************************/
+#ifdef LINUX
+#if !defined(__USE_XOPEN)
+#define __USE_XOPEN
+#endif
+#if !defined(_XOPEN_SOURCE)
+#define _XOPEN_SOURCE 600
+#endif
+#if !defined(__USE_XOPEN2K)
+#define __USE_XOPEN2K
+#endif
+#endif
+
+
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
