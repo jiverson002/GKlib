@@ -58,9 +58,11 @@ typedef ptrdiff_t ssize_t;
 #define PTRDIFF_MAX  INT64_MAX
 #endif
 
+#if 0
 /* MSC does not have INFINITY defined */
 #ifndef INFINITY
 #define INFINITY FLT_MAX
+#endif
 #endif
 
 #endif
