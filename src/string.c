@@ -478,7 +478,7 @@ char *gk_time2str(time_t time)
 
 
 
-#if !defined(WIN32) && !defined(__MINGW32__) && defined(_XOPEN_SOURCE)
+#if !defined(_WIN32) && !defined(__MINGW32__) && defined(_XOPEN_SOURCE)
 /************************************************************************/
 /*! \brief Converts a date/time string into its equivalent time_t value
 

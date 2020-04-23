@@ -39,7 +39,7 @@
 #ifndef SUNOS
   #include <stdint.h>
 #endif
-#if !defined(WIN32) && !defined(__MINGW32__)
+#if !defined(_WIN32) && !defined(__MINGW32__)
   #include <sys/resource.h>
 #endif
   #include <inttypes.h>
@@ -51,7 +51,7 @@
 /*************************************************************************
 * Architecture-specific modifications
 **************************************************************************/
-#ifdef WIN32
+#ifdef _WIN32
 typedef ptrdiff_t ssize_t;
 #endif
 
