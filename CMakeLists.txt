@@ -25,15 +25,12 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
           $<INSTALL_INTERFACE:src>)
 
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE m)
+if(NOT MSVC)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE m)
+endif()
 
 add_library(GKlib::gklib ALIAS ${PROJECT_NAME})
-
-# FIXME: Correctly link against libm when necessary
-#if(UNIX)
-#  target_link_libraries(GKlib m)
-#endif(UNIX)
 
 #-------------------------------------------------------------------------------
 # APPS configuration
