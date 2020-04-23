@@ -7,9 +7,6 @@ project(GKlib
   HOMEPAGE_URL "http://glaros.dtc.umn.edu/gkhome/index.php"
   LANGUAGES    C)
 
-# ...
-include(cmake/GKlibSystem.cmake)
-
 # Include required CMake modules
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
