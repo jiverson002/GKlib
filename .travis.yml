@@ -1,0 +1,18 @@
+language: c
+
+dist: xenial
+
+# Choose operating systems.
+os:
+  - linux
+  - osx
+  - windows
+
+# Choose compilers.
+compiler:
+  - clang
+  - gcc
+
+# Override default script.
+script:
+  - $CMAKE . && $CMAKE --build . && $CTEST --output-on-failure
