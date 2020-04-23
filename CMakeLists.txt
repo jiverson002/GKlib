@@ -9,10 +9,13 @@ project(GKlib
 
 # ...
 include(GKlibSystem.cmake)
+
 # Include required CMake modules
 include(CheckCCompilerFlag)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 #-------------------------------------------------------------------------------
 # COMMAND-LINE OPTIONS
@@ -46,6 +49,10 @@ if(NOT MSVC)
   target_link_libraries(${PROJECT_NAME}
     PUBLIC m)
 endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  SOVERSION ${PROJECT_VERSION_MAJOR}
+  VERSION   ${PROJECT_VERSION})
 
 add_library(GKlib::gklib ALIAS ${PROJECT_NAME})
 
@@ -92,7 +99,7 @@ if(PCRE)
 endif()
 
 #-------------------------------------------------------------------------------
-# AVAILABILITY checks
+# FEATURE AVAILABILITY checks
 #-------------------------------------------------------------------------------
 check_include_file(execinfo.h HAVE_EXECINFO_H)
 if(HAVE_EXECINFO_H)
@@ -104,7 +111,6 @@ if(HAVE_GETLINE)
   target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_GETLINE)
 endif()
 
-# Custom check for TLS.
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PUBLIC __thread=declspec(thread))
 
@@ -130,9 +136,39 @@ endif()
 add_subdirectory("apps")
 
 #-------------------------------------------------------------------------------
-# INSTALL configuration
+# PACKAGE configuration
 #-------------------------------------------------------------------------------
-#install(TARGETS GKlib
-#  ARCHIVE DESTINATION lib/${LINSTALL_PATH}
-#  LIBRARY DESTINATION lib/${LINSTALL_PATH})
-#install(FILES ${GKlib_includes} DESTINATION include/${HINSTALL_PATH})
+configure_package_config_file(GKlibConfig.cmake.in cmake/GKlibConfig.cmake
+  INSTALL_DESTINATION lib/cmake/GKlib)
+
+write_basic_package_version_file(cmake/GKlibConfigVersion.cmake
+  VERSION       ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+install(TARGETS ${PROJECT_NAME} EXPORT GKlibTargets
+  RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
+           COMPONENT   GKlib_Runtime
+  LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           COMPONENT          GKlib_Runtime
+           NAMELINK_COMPONENT GKlib_Development
+  ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           COMPONENT   GKlib_Development
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT GKlibTargets
+  FILE        GKlibTargets.cmake
+  NAMESPACE   GKlib::
+  DESTINATION lib/cmake/GKlib
+  COMPONENT   GKlib_Development)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/"
+  DESTINATION     ${CMAKE_INSTALL_INCLUDEDIR}/GKlib
+  COMPONENT       GKlib_Development
+  FILES_MATCHING
+  PATTERN         "*[.]h")
+
+install(
+  FILES       ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfigVersion.cmake
+  DESTINATION lib/cmake/GKlib
+  COMPONENT   GKlib_Development)
