@@ -124,6 +124,8 @@ if(NOT DEFINED HAVE_TLS)
 endif()
 if(HAVE_TLS)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "__thread=${TLS_NAME}")
+else()
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "__thread=")
 endif()
 
 #-------------------------------------------------------------------------------
