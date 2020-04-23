@@ -8,7 +8,7 @@ project(GKlib
   LANGUAGES    C)
 
 # ...
-include(GKlibSystem.cmake)
+include(cmake/GKlibSystem.cmake)
 
 # Include required CMake modules
 include(CheckCSourceCompiles)
