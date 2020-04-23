@@ -1,17 +1,18 @@
 language: c
 
+# root key configurations (defaults).
+os: linux
 dist: xenial
 
-# Choose operating systems.
-os:
-  - linux
-  - osx
-  - windows
-
-# Choose compilers.
-compiler:
-  - clang
-  - gcc
+# OS and compiler configurations.
+jobs:
+  include:
+  - os: linux
+    compiler: clang
+  - os: linux
+    compiler: gcc
+  - os: osx
+  - os: windows
 
 # Override default script.
 script:
