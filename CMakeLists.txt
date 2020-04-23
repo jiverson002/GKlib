@@ -106,7 +106,7 @@ endif()
 
 # Custom check for TLS.
 if(MSVC)
-   set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__thread=__declspec(thread)")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC __thread=declspec(thread))
 
   # This if checks if that value is cached or not.
   if("${HAVE_THREADLOCALSTORAGE}" MATCHES "^${HAVE_THREADLOCALSTORAGE}$")
@@ -120,7 +120,7 @@ if(MSVC)
     endif()
   endif()
   if(NOT HAVE_THREADLOCALSTORAGE)
-    set(GKlib_COPTIONS "${GKlib_COPTIONS} -D__thread=")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __thread=)
   endif()
 endif()
 
