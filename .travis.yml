@@ -15,4 +15,4 @@ compiler:
 
 # Override default script.
 script:
-  - $CMAKE . && $CMAKE --build . && $CTEST --output-on-failure
+  - cmake . && cmake --build . && ctest --output-on-failure
