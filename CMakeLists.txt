@@ -43,8 +43,8 @@ target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
 
 target_include_directories(${PROJECT_NAME}
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-         $<INSTALL_INTERFACE:src>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:m>)
@@ -158,7 +158,7 @@ install(EXPORT GKlibTargets
   DESTINATION lib/cmake/GKlib
   COMPONENT   GKlib_Development)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
   DESTINATION     ${CMAKE_INSTALL_INCLUDEDIR}/GKlib
   COMPONENT       GKlib_Development)
 

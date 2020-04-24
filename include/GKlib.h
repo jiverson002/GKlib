@@ -46,7 +46,7 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-#if defined(WITHPCRE) && defined(HAVE_PCREPOSIX_H)
+#if defined(USE_PCRE) && defined(HAVE_PCREPOSIX_H)
   #include <pcreposix.h>
 #else
   #if defined(HAVE_REGEX_H)
