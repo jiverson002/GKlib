@@ -37,7 +37,15 @@ target_sources(${PROJECT_NAME}
           src/fkvkselect.c src/fs.c src/getopt.c src/gk_util.c src/gkregex.c
           src/graph.c src/htable.c src/io.c src/itemsets.c src/mcore.c
           src/memory.c src/pqueue.c src/random.c src/rw.c src/seq.c src/sort.c
-          src/string.c src/timers.c src/tokenizer.c)
+          src/string.c src/timers.c src/tokenizer.c
+          # these are only included below so that they appear when using IDEs
+          include/GKlib.h include/gk_arch.h include/gk_defs.h
+          include/gk_externs.h include/gk_getopt.h include/gk_macros.h
+          include/gk_mkblas.h include/gk_mkmemory.h include/gk_mkpqueue.h
+          include/gk_mkpqueue2.h include/gk_mkrandom.h include/gk_mksort.h
+          include/gk_mkutils.h include/gk_proto.h include/gk_struct.h
+          include/gk_types.h include/gkregex.h include/ms_inttypes.h
+          include/ms_stat.h include/ms_stdint.h)
 
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
@@ -135,6 +143,7 @@ add_subdirectory("apps")
 #-------------------------------------------------------------------------------
 # PACKAGE configuration
 #-------------------------------------------------------------------------------
+# generate files
 configure_package_config_file(GKlibConfig.cmake.in cmake/GKlibConfig.cmake
   INSTALL_DESTINATION lib/cmake/GKlib)
 
@@ -142,10 +151,9 @@ write_basic_package_version_file(cmake/GKlibConfigVersion.cmake
   VERSION       ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion)
 
+# install library
 install(TARGETS ${PROJECT_NAME} EXPORT GKlibTargets
-  RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
-           COMPONENT   GKlib_Runtime
-  LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY  DESTINATION        ${CMAKE_INSTALL_LIBDIR}
            COMPONENT          GKlib_Runtime
            NAMELINK_COMPONENT GKlib_Development
   ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -159,11 +167,16 @@ install(EXPORT GKlibTargets
   COMPONENT   GKlib_Development)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
-  DESTINATION     ${CMAKE_INSTALL_INCLUDEDIR}/GKlib
-  COMPONENT       GKlib_Development)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GKlib
+  COMPONENT   GKlib_Development)
 
 install(
   FILES       ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfigVersion.cmake
   DESTINATION lib/cmake/GKlib
   COMPONENT   GKlib_Development)
+
+# install executables
+install(TARGETS ${GKLIB_PROGRAMS}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          COMPONENT   GKlib_Runtime)

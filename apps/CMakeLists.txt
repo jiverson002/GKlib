@@ -2,8 +2,9 @@
 #include_directories(../)
 
 # Build program.
-set(GKLIB_PROGRAMS
-  strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs splatt2svd)
+set(GKLIB_PROGRAMS strings gksort fis gkrw gkgraph csrcnv grKx m2mnbrs cmpnbrs
+                   splatt2svd)
+set(GKLIB_PROGRAMS ${GKLIB_PROGRAMS} PARENT_SCOPE)
 
 foreach(prog ${GKLIB_PROGRAMS})
   add_executable(${prog} ${prog}.c)
