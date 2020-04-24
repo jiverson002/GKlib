@@ -68,18 +68,38 @@ target_compile_definitions(${PROJECT_NAME}
 # FEATURE AVAILABILITY checks
 #-------------------------------------------------------------------------------
 check_include_file(execinfo.h HAVE_EXECINFO_H)
-check_include_file(regex.h HAVE_REGEX_H)
 check_function_exists(getline HAVE_GETLINE)
+
+# regular expressions
 if(PCRE)
   check_include_file(pcreposix.h HAVE_PCREPOSIX_H)
-endif()
-if(GPROF)
-  check_c_compiler_flag("-pg" HAVE_GPROF_SUPPORT)
-endif()
-if(OPENMP)
-  find_package(OpenMP)
+  if(NOT HAVE_PCREPOSIX_H)
+    message(WARNING "PCRE was requested, but is not available")
+  endif()
+else()
+  check_include_file(regex.h HAVE_REGEX_H)
+  if(NOT HAVE_REGEX_H)
+    set(USE_GKREGEX ON)
+  endif()
 endif()
 
+# profiling support
+if(GPROF)
+  check_c_compiler_flag("-pg" HAVE_GPROF_SUPPORT)
+  if(NOT HAVE_GPROF_SUPPORT)
+    message(WARNING "GPROF support was requested, but is not available")
+  endif()
+endif()
+
+# openmp support
+if(OPENMP)
+  find_package(OpenMP)
+  if(NOT OpenMP_C_FOUND)
+    message(WARNING "OpenMP was requested, but is not available")
+  endif()
+endif()
+
+# thread local storage
 if(NOT DEFINED HAVE_TLS)
   foreach(tls_name "__thread" "__declspec(thread)")
     unset(HAVE_TLS CACHE)
@@ -94,9 +114,10 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<BOOL:${HAVE_EXECINFO_H}>:HAVE_EXEC_INFO_H>
-         $<$<BOOL:${HAVE_REGEX_H}>:HAVE_REGEX_H>
-         $<$<BOOL:${PCRE}>:WITHPCRE>
+         $<$<BOOL:${PCRE}>:USE_PCRE>
          $<$<AND:$<BOOL:${PCRE}>,$<BOOL:${HAVE_PCREPOSIX_H}>>:HAVE_PCREPOSIX_H>
+         $<$<BOOL:${HAVE_REGEX_H}>:HAVE_REGEX_H>
+         $<$<BOOL:${USE_GKREGEX}>:USE_GKREGEX>
          $<$<BOOL:${HAVE_GETLINE}>:HAVE_GETLINE>
          $<IF:$<BOOL:${HAVE_TLS}>,__thread=${TLS_NAME},__thread=>)
 
@@ -139,9 +160,7 @@ install(EXPORT GKlibTargets
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/src/"
   DESTINATION     ${CMAKE_INSTALL_INCLUDEDIR}/GKlib
-  COMPONENT       GKlib_Development
-  FILES_MATCHING
-  PATTERN         "*[.]h")
+  COMPONENT       GKlib_Development)
 
 install(
   FILES       ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfig.cmake
