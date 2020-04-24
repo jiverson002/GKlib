@@ -16,7 +16,7 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 #-------------------------------------------------------------------------------
-# COMMAND-LINE OPTIONS
+# OPTIONS
 #-------------------------------------------------------------------------------
 option(ASSERT  "turn asserts on"        OFF)
 option(ASSERT2 "additional assertions"  OFF)
@@ -26,6 +26,12 @@ option(GKRAND  "enable GKRAND support"  OFF)
 option(GKREGEX "enable GKREGEX support" OFF)
 option(OPENMP  "enable OpenMP support"  OFF)
 option(PCRE    "enable PCRE support"    OFF)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  option(GKLIB_BUILD_APPS "build the GKlib applications" ON)
+else()
+  option(GKLIB_BUILD_APPS "build the GKlib applications" OFF)
+endif()
 
 #-------------------------------------------------------------------------------
 # LIBRARY configuration
@@ -61,7 +67,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
   VERSION   ${PROJECT_VERSION})
 
-add_library(GKlib::gklib ALIAS ${PROJECT_NAME})
+add_library(GKlib::GKlib ALIAS ${PROJECT_NAME})
 
 #-------------------------------------------------------------------------------
 # OPTIONS configuration
@@ -138,7 +144,9 @@ target_link_libraries(${PROJECT_NAME}
 #-------------------------------------------------------------------------------
 # APPS configuration
 #-------------------------------------------------------------------------------
-add_subdirectory("apps")
+if(GKLIB_BUILD_APPS)
+  add_subdirectory("apps")
+endif()
 
 #-------------------------------------------------------------------------------
 # PACKAGE configuration
