@@ -175,8 +175,3 @@ install(
               ${CMAKE_CURRENT_BINARY_DIR}/cmake/GKlibConfigVersion.cmake
   DESTINATION lib/cmake/GKlib
   COMPONENT   GKlib_Development)
-
-# install executables
-install(TARGETS ${GKLIB_PROGRAMS}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-          COMPONENT   GKlib_Runtime)
