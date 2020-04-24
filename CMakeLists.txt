@@ -93,15 +93,15 @@ if(NOT DEFINED HAVE_TLS)
 endif()
 
 target_compile_definitions(${PROJECT_NAME}
-  PUBLIC $<${HAVE_EXECINFO_H}:HAVE_EXEC_INFO_H>
-         $<${HAVE_REGEX_H}:HAVE_REGEX_H>
+  PUBLIC $<$<BOOL:${HAVE_EXECINFO_H}>:HAVE_EXEC_INFO_H>
+         $<$<BOOL:${HAVE_REGEX_H}>:HAVE_REGEX_H>
          $<$<BOOL:${PCRE}>:WITHPCRE>
-         $<$<AND:$<BOOL:${PCRE}>,${HAVE_PCREPOSIX_H}>:HAVE_PCREPOSIX_H>
-         $<${HAVE_GETLINE}:HAVE_GETLINE>
-         $<IF:${HAVE_TLS},__thread=${TLS_NAME},__thread=>)
+         $<$<AND:$<BOOL:${PCRE}>,$<BOOL:${HAVE_PCREPOSIX_H}>>:HAVE_PCREPOSIX_H>
+         $<$<BOOL:${HAVE_GETLINE}>:HAVE_GETLINE>
+         $<IF:$<BOOL:${HAVE_TLS}>,__thread=${TLS_NAME},__thread=>)
 
 target_compile_options(${PROJECT_NAME}
-  PUBLIC $<$<AND:$<BOOL:${GPROF}>,${HAVE_GPROF_SUPPORT}>:-pg>)
+  PUBLIC $<$<AND:$<BOOL:${GPROF}>,$<BOOL:${HAVE_GPROF_SUPPORT}>>:-pg>)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC $<$<BOOL:${OPENMP}>:OpenMP::OpenMP_C>)
