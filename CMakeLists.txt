@@ -8,6 +8,7 @@ project(GKlib
   LANGUAGES    C)
 
 # Include required CMake modules
+include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -38,14 +39,15 @@ target_sources(${PROJECT_NAME}
           src/memory.c src/pqueue.c src/random.c src/rw.c src/seq.c src/sort.c
           src/string.c src/timers.c src/tokenizer.c)
 
-target_include_directories(${PROJECT_NAME}
-  PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-          $<INSTALL_INTERFACE:src>)
+target_compile_definitions(${PROJECT_NAME}
+  PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
 
-if(NOT MSVC)
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC m)
-endif()
+target_include_directories(${PROJECT_NAME}
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+         $<INSTALL_INTERFACE:src>)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC $<$<NOT:$<C_COMPILER_ID:MSVC>>:m>)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -54,58 +56,28 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_library(GKlib::gklib ALIAS ${PROJECT_NAME})
 
 #-------------------------------------------------------------------------------
-# OPENMP configuration
-#-------------------------------------------------------------------------------
-find_package(OpenMP)
-if(OpenMP_C_FOUND)
-  target_compile_definitions(${PROJECT_NAME}
-    PUBLIC __OPENMP__)
-
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC OpenMP::OpenMP_C)
-endif()
-
-#-------------------------------------------------------------------------------
 # OPTIONS configuration
 #-------------------------------------------------------------------------------
-if(NOT ASSERT)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG)
-endif()
-if(NOT ASSERT2)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG2)
-endif()
-if(DEBUG)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG)
-endif()
-if(GPROF)
-  check_c_compiler_flag("-pg" HAS_GPROF_SUPPORT)
-  if (HAS_GPROF_SUPPORT)
-    target_compile_options(${PROJECT_NAME} PUBLIC "-pg")
-  else()
-    message(STATUS "GPROF support is not available.")
-  endif()
-endif()
-if(GKRAND)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GKRAND)
-endif()
-if(GKREGEX)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GKREGEX)
-endif()
-if(PCRE)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC __WITHPCRE__)
-endif()
+target_compile_definitions(${PROJECT_NAME}
+  PUBLIC $<$<NOT:$<BOOL:${ASSERT}>>:NDEBUG>
+         $<$<NOT:$<BOOL:${ASSERT2}>>:NDEBUG2>
+         $<$<BOOL:${DEBUG}>:DEBUG>
+         $<$<BOOL:${GKRAND}>:GKRAND>)
 
 #-------------------------------------------------------------------------------
 # FEATURE AVAILABILITY checks
 #-------------------------------------------------------------------------------
 check_include_file(execinfo.h HAVE_EXECINFO_H)
-if(HAVE_EXECINFO_H)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_EXEC_INFO_H)
-endif()
-
+check_include_file(regex.h HAVE_REGEX_H)
 check_function_exists(getline HAVE_GETLINE)
-if(HAVE_GETLINE)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_GETLINE)
+if(PCRE)
+  check_include_file(pcreposix.h HAVE_PCREPOSIX_H)
+endif()
+if(GPROF)
+  check_c_compiler_flag("-pg" HAVE_GPROF_SUPPORT)
+endif()
+if(OPENMP)
+  find_package(OpenMP)
 endif()
 
 if(NOT DEFINED HAVE_TLS)
@@ -119,11 +91,20 @@ if(NOT DEFINED HAVE_TLS)
     endif()
   endforeach()
 endif()
-if(HAVE_TLS)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "__thread=${TLS_NAME}")
-else()
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "__thread=")
-endif()
+
+target_compile_definitions(${PROJECT_NAME}
+  PUBLIC $<${HAVE_EXECINFO_H}:HAVE_EXEC_INFO_H>
+         $<${HAVE_REGEX_H}:HAVE_REGEX_H>
+         $<$<BOOL:${PCRE}>:WITHPCRE>
+         $<$<AND:$<BOOL:${PCRE}>,${HAVE_PCREPOSIX_H}>:HAVE_PCREPOSIX_H>
+         $<${HAVE_GETLINE}:HAVE_GETLINE>
+         $<IF:${HAVE_TLS},__thread=${TLS_NAME},__thread=>)
+
+target_compile_options(${PROJECT_NAME}
+  PUBLIC $<$<AND:$<BOOL:${GPROF}>,${HAVE_GPROF_SUPPORT}>:-pg>)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC $<$<BOOL:${OPENMP}>:OpenMP::OpenMP_C>)
 
 #-------------------------------------------------------------------------------
 # APPS configuration

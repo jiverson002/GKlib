@@ -37,7 +37,7 @@
 #include <float.h>
 #include <time.h>
 #include <string.h>
-#if !defined(WIN32) && !defined(__MINGW32__)
+#if !defined(_WIN32) && !defined(__MINGW32__)
   #include <unistd.h>
 #endif
 #include <limits.h>
@@ -46,19 +46,19 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-#if defined(__WITHPCRE__)
+#if defined(WITHPCRE) && defined(HAVE_PCREPOSIX_H)
   #include <pcreposix.h>
 #else
-  #if defined(USE_GKREGEX)
-    #include "gkregex.h"
-  #else
+  #if defined(HAVE_REGEX_H)
     #include <regex.h>
-  #endif /* defined(USE_GKREGEX) */
-#endif /* defined(__WITHPCRE__) */
+  #else
+    #include "gkregex.h"
+  #endif /* defined(HAVE_REGEX_H) */
+#endif /* defined(WITHPCRE) && defined(HAVE_PRCREPOSIX_H) */
 
 
 
-#if defined(__OPENMP__) 
+#if defined(_OPENMP)
 #include <omp.h>
 #endif
 
