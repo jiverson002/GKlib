@@ -53,7 +53,7 @@ target_sources(${PROJECT_NAME}
           include/gk_types.h include/gkregex.h include/ms_inttypes.h
           include/ms_stat.h include/ms_stdint.h
           # the following are shims for win32 systems
-          src/win32/adapt.c include/win32/adapt.h)
+          $<$<PLATFORM_ID:Windows>:src/win32/adapt.c include/win32/adapt.h>)
 
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
