@@ -51,7 +51,9 @@ target_sources(${PROJECT_NAME}
           include/gk_mkpqueue2.h include/gk_mkrandom.h include/gk_mksort.h
           include/gk_mkutils.h include/gk_proto.h include/gk_struct.h
           include/gk_types.h include/gkregex.h include/ms_inttypes.h
-          include/ms_stat.h include/ms_stdint.h)
+          include/ms_stat.h include/ms_stdint.h
+          # the following are shims for win32 systems
+          src/win32/adapt.c include/win32/adapt.h)
 
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC $<$<PLATFORM_ID:Linux>:LINUX>)
